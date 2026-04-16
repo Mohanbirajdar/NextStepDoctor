@@ -68,6 +68,7 @@ const md = {
   blockquote: ({ children }) => (
     <blockquote className="border-l-2 border-emerald-500/40 pl-3 text-sm text-white/50 italic my-2">{children}</blockquote>
   ),
+  scp: ({ children }) => <code className="text-emerald-200/80 bg-white/5 px-1.5 py-0.5 rounded">{children}</code>,
 };
 
 function ConfidenceBadge({ confidence }) {

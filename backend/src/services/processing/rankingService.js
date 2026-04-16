@@ -17,8 +17,16 @@ const STOP_WORDS = new Set([
  * Extract meaningful query terms from expanded queries + original message.
  * Longer, disease-specific terms are weighted more than generic words.
  */
-function extractQueryTerms(expandedQueries, originalMessage = '') {
-  const allText = [...expandedQueries, originalMessage].join(' ');
+function extractQueryTerms(expandedQueries, originalMessage = '', context = {}) {
+  const ctxText = [
+    context?.intentQuery,
+    context?.intentType,
+    context?.location,
+    context?.drug,
+    context?.treatment,
+  ].filter(Boolean).join(' ');
+
+  const allText = [...expandedQueries, originalMessage, ctxText].join(' ');
   return allText
     .toLowerCase()
     .split(/[\s,\.;:\-\(\)]+/)
@@ -26,7 +34,7 @@ function extractQueryTerms(expandedQueries, originalMessage = '') {
     .filter((v, i, arr) => arr.indexOf(v) === i); // dedupe
 }
 
-export function scorePublication(pub, queryTerms) {
+export function scorePublication(pub, queryTerms, context = {}) {
   const text = `${pub.title || ''} ${pub.abstract || ''}`.toLowerCase();
 
   // Count term hits — longer terms get a bonus (more specific = more relevant)
@@ -45,10 +53,28 @@ export function scorePublication(pub, queryTerms) {
     sourceCredibility: pub.source === 'PubMed' ? 0.9 : 0.7,
   };
 
-  const finalScore = Object.keys(scores).reduce(
+  let finalScore = Object.keys(scores).reduce(
     (sum, key) => sum + scores[key] * RANKING_WEIGHTS[key],
     0,
   );
+
+  // Context boosts: intent terms, drug/treatment keywords, location, age
+  const ctxBoostTerms = [
+    context?.intentQuery,
+    context?.drug,
+    context?.treatment,
+    context?.intentType,
+  ].filter(Boolean).map((t) => t.toLowerCase());
+
+  const location = (context?.location || '').toLowerCase();
+  const age = context?.patientAge ? String(context.patientAge).toLowerCase() : '';
+
+  let contextBoost = 0;
+  ctxBoostTerms.forEach((t) => { if (t && text.includes(t)) contextBoost += 0.03; });
+  if (location && text.includes(location)) contextBoost += 0.03;
+  if (age && text.includes(age)) contextBoost += 0.01;
+
+  finalScore = Math.min(1, finalScore + contextBoost);
 
   return {
     ...pub,
@@ -58,7 +84,7 @@ export function scorePublication(pub, queryTerms) {
   };
 }
 
-export function scoreTrial(trial, queryTerms) {
+export function scoreTrial(trial, queryTerms, context = {}) {
   const text = `${trial.title || ''} ${trial.eligibility || ''}`.toLowerCase();
 
   let termHitScore = 0;
@@ -74,9 +100,16 @@ export function scoreTrial(trial, queryTerms) {
     trial.status === 'RECRUITING' ? 0.25 :
     trial.status === 'ACTIVE_NOT_RECRUITING' ? 0.15 : 0.05;
 
+  const location = (context?.location || '').toLowerCase();
+  const locationHit = location
+    ? (trial.locations || []).some((l) => l?.toLowerCase().includes(location))
+    : false;
+
+  const ctxBoost = locationHit ? 0.15 : 0;
+
   return {
     ...trial,
-    score: Math.round((relevance * 0.75 + statusBonus) * 100) / 100,
+    score: Math.round((relevance * 0.75 + statusBonus + ctxBoost) * 100) / 100,
   };
 }
 
@@ -85,17 +118,17 @@ export function scoreTrial(trial, queryTerms) {
  * @param {string[]} expandedQueries - LLM-expanded queries
  * @param {string} originalMessage - The user's original message (used to anchor term extraction)
  */
-export function rankAll(results, expandedQueries, originalMessage = '') {
-  const queryTerms = extractQueryTerms(expandedQueries, originalMessage);
+export function rankAll(results, expandedQueries, originalMessage = '', context = {}) {
+  const queryTerms = extractQueryTerms(expandedQueries, originalMessage, context);
   const uniqueTerms = [...new Set(queryTerms)];
 
   const rankedPublications = results.publications
-    .map((p) => scorePublication(p, uniqueTerms))
+    .map((p) => scorePublication(p, uniqueTerms, context))
     .sort((a, b) => b.score - a.score)
     .slice(0, MAX_PUBLICATIONS);
 
   const rankedTrials = results.trials
-    .map((t) => scoreTrial(t, uniqueTerms))
+    .map((t) => scoreTrial(t, uniqueTerms, context))
     .sort((a, b) => b.score - a.score)
     .slice(0, MAX_TRIALS);
 

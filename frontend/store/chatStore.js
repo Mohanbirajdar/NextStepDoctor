@@ -8,7 +8,7 @@ const useChatStore = create(
       conversations: [],
       activeConversationId: null,
       messages: [],
-      context: { disease: '', location: '', patientName: '', patientAge: '' },
+      context: { disease: '', location: '', patientName: '', patientAge: '', intentQuery: '', intentType: '' },
       inputMode: 'natural',
 
       setContext: (ctx) => set({ context: { ...get().context, ...ctx } }),
@@ -28,7 +28,7 @@ const useChatStore = create(
       clearChat: () => set({
         messages: [],
         activeConversationId: null,
-        context: { disease: '', location: '', patientName: '', patientAge: '' },
+        context: { disease: '', location: '', patientName: '', patientAge: '', intentQuery: '', intentType: '' },
       }),
       setInputMode: (mode) => set({ inputMode: mode }),
       removeConversation: (id) =>

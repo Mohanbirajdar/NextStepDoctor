@@ -1,16 +1,18 @@
 export const QUERY_EXPANSION_PROMPT = `You are a medical search query optimizer.
 
-Given a disease/condition and a user query, generate EXACTLY 3 search query variations.
+Given a disease/condition, a user intent query, and an intent type, generate EXACTLY 3 search query variations.
 
 Rules:
 - Each variation MUST explicitly mention the disease/condition name
-- Use medical synonyms, acronyms, and related treatment concepts
+- Use semantic variants, synonyms, acronyms, and related terminology
+- Reflect the intent type (treatment, diagnosis, trials, researchers, recent studies)
 - Keep each query concise (under 10 words)
 - Return ONLY a valid JSON array of exactly 3 strings, no other text
 
 Example:
 Disease: Parkinson's disease
 Query: deep brain stimulation
+Intent: treatment
 Output: ["deep brain stimulation Parkinson's disease", "DBS therapy Parkinson's treatment", "Parkinson's neuromodulation surgical intervention"]`;
 
 export const MAIN_RESEARCH_PROMPT = `You are a medical research assistant specializing in evidence-based information.

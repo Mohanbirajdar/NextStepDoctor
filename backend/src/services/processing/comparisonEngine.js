@@ -11,9 +11,14 @@ export async function compareTreatments({ disease, treatments, context }) {
   // Run retrieval for each treatment in parallel
   const results = await Promise.all(
     treatments.slice(0, 2).map(async (treatment) => {
-      const expanded = await expandQuery({ disease, query: treatment });
+      const expanded = await expandQuery({
+        disease,
+        query: treatment,
+        intentType: 'treatment',
+        intentQuery: treatment,
+      });
       const raw = await retrievalOrchestrator.fetchAll(expanded, { ...context, query: treatment });
-      const ranked = rankAll(raw, expanded);
+      const ranked = rankAll(raw, expanded, treatment, { ...context, treatment });
       return { treatment, ranked, expanded };
     }),
   );

@@ -84,6 +84,9 @@ export async function searchClinicalTrials(disease, query, options = {}) {
       const coords = geocodeCity(options.location);
       if (coords) {
         params['filter.geo'] = `distance(${coords.lat},${coords.lng},200mi)`;
+      } else {
+        // Fallback to location text filtering (country/region/city)
+        params['query.locn'] = options.location;
       }
     }
 

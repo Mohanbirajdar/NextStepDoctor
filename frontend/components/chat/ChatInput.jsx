@@ -47,6 +47,7 @@ export default function ChatInput({ onSend, disabled }) {
             <div className="grid grid-cols-2 gap-2 mb-3">
               {[
                 { key: 'disease', placeholder: 'Disease / Condition', icon: <span className="text-xs">🫁</span> },
+                { key: 'intentQuery', placeholder: 'Specific intent (e.g. drug, treatment)', icon: <span className="text-xs">🎯</span> },
                 { key: 'location', placeholder: 'Location (e.g. Mumbai)', icon: <MapPin size={12} className="text-white/30" /> },
                 { key: 'patientName', placeholder: 'Patient name', icon: <User size={12} className="text-white/30" /> },
                 { key: 'patientAge', placeholder: 'Age', icon: <span className="text-xs text-white/30">#</span>, type: 'number' },

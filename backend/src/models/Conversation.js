@@ -83,6 +83,8 @@ const conversationSchema = new Schema({
     location: String,
     patientName: String,
     patientAge: Number,
+    intentQuery: String,
+    intentType: String,
   },
   messages: [messageSchema],
 }, { timestamps: true });

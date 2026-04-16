@@ -9,6 +9,7 @@ import { aggregateAnalytics } from '../services/processing/analyticsAggregator.j
 import { generateFollowUps } from '../services/processing/followUpGenerator.js';
 import * as contextManager from '../services/contextManager.js';
 import { logger } from '../utils/logger.js';
+import { detectIntentType } from '../services/processing/intentDetector.js';
 
 /**
  * Extract the medical condition/disease from a natural language message.
@@ -45,6 +46,10 @@ function extractDiseaseFromMessage(message) {
  */
 function resolveContext(message, context) {
   const resolved = { ...context };
+
+  if (resolved.intentQuery && typeof resolved.intentQuery === 'string') {
+    resolved.intentQuery = resolved.intentQuery.trim();
+  }
 
   if (!resolved.disease || resolved.disease.trim() === '') {
     const extracted = extractDiseaseFromMessage(message);
@@ -88,7 +93,17 @@ export async function streamChat(req, res) {
 
     // ── Resolve the working context (extract disease from message when not provided) ──
     const context = resolveContext(message.trim(), rawContext);
-    logger.info(`Pipeline context → disease: "${context.disease}", query: "${message}"`);
+    const intentInfo = context.intentType ? { type: context.intentType, confidence: 0.5 } : detectIntentType({
+      message: message.trim(),
+      intentQuery: context.intentQuery,
+    });
+    context.intentType = context.intentType || intentInfo.type;
+
+    const effectiveQuery = context.intentQuery && context.intentQuery.length > 0
+      ? context.intentQuery
+      : message.trim();
+
+    logger.info(`Pipeline context → disease: "${context.disease}", query: "${effectiveQuery}", intent: "${context.intentType}"`);
 
     // ── Get or create conversation ──
     const conversation = await contextManager.getOrCreateConversation(
@@ -106,7 +121,9 @@ export async function streamChat(req, res) {
     const t1 = Date.now();
     const expandedQueries = await expandQuery({
       disease: context.disease,
-      query: message,
+      query: effectiveQuery,
+      intentType: context.intentType,
+      intentQuery: context.intentQuery,
     });
     logger.info(`Expanded queries: ${expandedQueries.join(' | ')}`);
     emit({
@@ -135,7 +152,7 @@ export async function streamChat(req, res) {
     // ── Stage 3: Ranking ──
     emit({ stage: 'ranking', status: 'running', message: '🎯 Ranking and scoring results...' });
     const t3 = Date.now();
-    const ranked = rankAll(results, expandedQueries, message);
+    const ranked = rankAll(results, expandedQueries, effectiveQuery, context);
     emit({
       stage: 'ranking',
       status: 'complete',
@@ -150,7 +167,7 @@ export async function streamChat(req, res) {
     // ── Stage 4: LLM Reasoning ──
     emit({ stage: 'llm_reasoning', status: 'running', message: '🧠 Generating structured insights...' });
     const t4 = Date.now();
-    const userPrompt = buildLLMUserPrompt({ context, message, ranked, conversationHistory: history });
+    const userPrompt = buildLLMUserPrompt({ context, message: effectiveQuery, ranked, conversationHistory: history });
     const llmResponse = await generateResponse(MAIN_RESEARCH_PROMPT, userPrompt, { maxTokens: 2048 });
     const structured = parseStructured(llmResponse);
     emit({ stage: 'llm_reasoning', status: 'complete', timeMs: Date.now() - t4 });

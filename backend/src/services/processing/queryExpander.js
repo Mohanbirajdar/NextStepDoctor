@@ -7,26 +7,38 @@ import { logger } from '../../utils/logger.js';
  * Ensures every query explicitly combines the disease context with the user intent,
  * so retrieval is always anchored to the actual topic.
  */
-function buildFallbackQueries(disease, query) {
+function buildFallbackQueries(disease, query, intentType) {
   const d = (disease || '').trim();
   const q = (query || '').trim();
 
   // If disease and query are the same (message used as disease), just use message directly
   const base = d && d.toLowerCase() !== q.toLowerCase() ? `${d} ${q}` : q;
 
+  const intentMap = {
+    treatment: 'treatment therapy',
+    diagnosis: 'diagnosis symptoms',
+    trials: 'clinical trials',
+    researchers: 'top researchers authors',
+    recent_studies: 'recent studies papers',
+  };
+
+  const intentPhrase = intentMap[intentType] || 'treatment research';
+
   return [
     base,
-    d ? `${d} treatment research` : `${q} treatment`,
+    d ? `${d} ${intentPhrase}` : `${q} ${intentPhrase}`,
     d ? `${d} clinical trials` : `${q} clinical trials`,
   ];
 }
 
-export async function expandQuery({ disease, query }) {
+export async function expandQuery({ disease, query, intentType, intentQuery }) {
   const d = (disease || '').trim();
   const q = (query || '').trim();
+  const intent = (intentType || '').trim();
+  const intentQ = (intentQuery || '').trim();
 
   try {
-    const userPrompt = `Disease/Condition: ${d || 'Not specified'}\nUser Query: ${q}\n\nGenerate 3 specific search queries that combine the disease and query intent.`;
+    const userPrompt = `Disease/Condition: ${d || 'Not specified'}\nUser Query: ${q}\nIntent Query: ${intentQ || 'Not specified'}\nIntent Type: ${intent || 'general'}\n\nGenerate 3 specific search queries that combine the disease and query intent.`;
     const raw = await generateResponse(QUERY_EXPANSION_PROMPT, userPrompt, { maxTokens: 256 });
 
     // Extract JSON array from LLM response
@@ -49,7 +61,7 @@ export async function expandQuery({ disease, query }) {
     logger.warn('Query expansion LLM failed, using fallback', err.message);
   }
 
-  const fallback = buildFallbackQueries(d, q);
+  const fallback = buildFallbackQueries(d, q, intent);
   logger.info(`Query expanded (fallback): ${fallback.join(' | ')}`);
   return fallback;
 }
