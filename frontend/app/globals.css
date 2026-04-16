@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ─── Design tokens ─────────────────────────────────────── */
+:root {
+  /* Core palette */
+  --bg-base:       #0b0f1a;
+  --bg-surface:    #111827;
+  --bg-elevated:   #1a2235;
+  --sidebar-bg:    #0d1424;
+  --header-bg:     rgba(11,15,26,0.85);
+
+  /* Accent */
+  --emerald:       #10b981;
+  --emerald-light: #34d399;
+  --teal:          #14b8a6;
+
+  /* Text */
+  --text-primary:  #f0f6ff;
+  --text-muted:    rgba(240,246,255,0.45);
+  --text-faint:    rgba(240,246,255,0.18);
+
+  /* Border */
+  --border:        rgba(255,255,255,0.08);
+  --border-hover:  rgba(255,255,255,0.16);
+}
+
+/* ─── Base ───────────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Tailwind semantic helpers ──────────────────────────── */
+.bg-sidebar   { background: var(--sidebar-bg); }
+.bg-header    { background: var(--header-bg); }
+.bg-surface   { background: var(--bg-surface); }
+.bg-elevated  { background: var(--bg-elevated); }
+
+/* ─── Scrollbars ─────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+*::-webkit-scrollbar        { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track  { background: transparent; }
+*::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.10); border-radius: 99px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.20); }
+
+.sidebar-scroll::-webkit-scrollbar { width: 2px; }
+
+/* ─── Chat message area background ──────────────────────── */
+.chat-area {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16,185,129,0.06) 0%, transparent 60%),
+    var(--bg-base);
+}
+
+/* ─── Glass card ─────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+.glass-hover:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: var(--border-hover);
+}
+
+/* ─── Gradient text ──────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #34d399 0%, #14b8a6 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Pipeline stage glow ────────────────────────────────── */
+.stage-glow {
+  box-shadow: 0 0 12px rgba(16,185,129,0.25);
+}
+
+/* ─── Input glow on focus ────────────────────────────────── */
+.input-focus:focus-within {
+  box-shadow: 0 0 0 2px rgba(16,185,129,0.35), 0 4px 24px rgba(16,185,129,0.08);
+}
+
+/* ─── Keyframes ──────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(16,185,129,0.2); }
+  50%       { box-shadow: 0 0 28px rgba(16,185,129,0.5); }
+}
+@keyframes scan-line {
+  0%   { top: 0%; opacity: 0.6; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.animate-float      { animation: float 3.5s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse 2.5s ease-in-out infinite; }
+.animate-shimmer    {
+  background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,0.06) 50%, transparent 80%);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ─── Message bubble overrides ───────────────────────────── */
+.user-bubble {
+  background: linear-gradient(135deg, #059669, #0d9488);
+  box-shadow: 0 4px 16px rgba(16,185,129,0.25);
+}
+.assistant-bubble {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+
+/* ─── Chart tooltip ──────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  color: var(--text-primary) !important;
+}
+
+/* ─── Prose inside markdown ──────────────────────────────── */
+.prose-dark p   { color: rgba(240,246,255,0.75); line-height: 1.75; }
+.prose-dark li  { color: rgba(240,246,255,0.70); }
+.prose-dark strong { color: var(--text-primary); }
+
+/* ─── Selection ──────────────────────────────────────────── */
+::selection {
+  background: rgba(16,185,129,0.3);
+  color: #fff;
+}
