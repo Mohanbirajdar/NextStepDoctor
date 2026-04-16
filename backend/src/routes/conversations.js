@@ -5,12 +5,13 @@ import {
   deleteConversation,
   createConversation,
 } from '../controllers/conversationController.js';
+import { authRequired } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/', listConversations);
-router.post('/', createConversation);
-router.get('/:id', getConversation);
-router.delete('/:id', deleteConversation);
+router.get('/', authRequired, listConversations);
+router.post('/', authRequired, createConversation);
+router.get('/:id', authRequired, getConversation);
+router.delete('/:id', authRequired, deleteConversation);
 
 export default router;

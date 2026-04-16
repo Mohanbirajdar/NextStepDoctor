@@ -38,7 +38,7 @@ export function parseStructured(markdown) {
 }
 
 export function buildLLMUserPrompt({ context, message, ranked, conversationHistory = [] }) {
-  const { disease, location, patientName, patientAge, intentQuery, intentType } = context || {};
+  const { disease, location, patientAge, intentQuery, intentType, sex, weight, allergies, conditions, currentMeds, labValues } = context || {};
 
   // ── Critical: state the topic explicitly up front so the LLM stays on target ──
   const topicLine = disease && disease.toLowerCase() !== message.toLowerCase()
@@ -67,10 +67,15 @@ export function buildLLMUserPrompt({ context, message, ranked, conversationHisto
   return `${topicLine}
 
 Patient Context:
-Name: ${patientName || 'Patient'}
 Age: ${patientAge || 'Not specified'}
+Sex: ${sex || 'Not specified'}
+Weight: ${weight || 'Not specified'}
 Location: ${location || 'Not specified'}
 Disease/Condition: ${disease || message}
+Conditions: ${conditions || 'Not specified'}
+Allergies: ${allergies || 'Not specified'}
+Current Meds: ${currentMeds || 'Not specified'}
+Lab Values: ${labValues || 'Not specified'}
 Intent Query: ${intentQuery || message}
 Intent Type: ${intentType || 'general'}
 Current Question: ${message}

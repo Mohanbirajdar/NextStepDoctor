@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import useChatStore from '@/store/chatStore';
 import usePipelineStore from '@/store/pipelineStore';
 import { endpoints } from '@/lib/api';
+import useAuthStore from '@/store/authStore';
 
 export function useStream() {
   const { addMessage, addConversation, updateLastMessage, setActiveConversation } = useChatStore();
@@ -10,6 +11,7 @@ export function useStream() {
 
   const sendMessage = useCallback(
     async (text, context) => {
+      const token = useAuthStore.getState().token;
       const conversationId = useChatStore.getState().activeConversationId;
 
       addMessage({ role: 'user', content: text });
@@ -19,7 +21,10 @@ export function useStream() {
       try {
         const response = await fetch(endpoints.chatStream, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({ message: text, context, conversationId }),
         });
 

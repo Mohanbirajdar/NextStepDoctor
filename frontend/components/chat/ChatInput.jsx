@@ -1,13 +1,15 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, LayoutList, MessageCircle, MapPin, User, Loader2 } from 'lucide-react';
+import { Send, LayoutList, MessageCircle, MapPin, User, Loader2, Mic, MicOff } from 'lucide-react';
 import useChatStore from '@/store/chatStore';
 
 export default function ChatInput({ onSend, disabled }) {
   const [text, setText] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
   const { inputMode, setInputMode, context, setContext } = useChatStore();
   const textareaRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -15,6 +17,25 @@ export default function ChatInput({ onSend, disabled }) {
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
   }, [text]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((r) => r[0]?.transcript || '')
+        .join('');
+      setText(transcript);
+    };
+    recognition.onend = () => setIsRecording(false);
+    recognition.onerror = () => setIsRecording(false);
+    recognitionRef.current = recognition;
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,8 +53,24 @@ export default function ChatInput({ onSend, disabled }) {
 
   const canSend = text.trim() && !disabled;
 
+  const toggleRecording = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
+    if (isRecording) {
+      recognition.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        recognition.start();
+        setIsRecording(true);
+      } catch {
+        setIsRecording(false);
+      }
+    }
+  };
+
   return (
-    <div className="border-t border-white/8 bg-[#0b0f1a]/95 backdrop-blur-xl p-4">
+    <div className="border-t border-white/8 bg-[#0b0f1a]/95 backdrop-blur-xl p-3 sm:p-4 chat-input-shell">
       {/* Structured fields */}
       <AnimatePresence>
         {inputMode === 'structured' && (
@@ -44,7 +81,7 @@ export default function ChatInput({ onSend, disabled }) {
             transition={{ duration: 0.22 }}
             className="overflow-hidden"
           >
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
               {[
                 { key: 'disease', placeholder: 'Disease / Condition', icon: <span className="text-xs">🫁</span> },
                 { key: 'intentQuery', placeholder: 'Specific intent (e.g. drug, treatment)', icon: <span className="text-xs">🎯</span> },
@@ -70,7 +107,7 @@ export default function ChatInput({ onSend, disabled }) {
 
       {/* Main input row */}
       <form onSubmit={handleSubmit}>
-        <div className={`flex items-end gap-2 bg-white/5 border rounded-2xl px-3 py-2.5 transition-all duration-300 input-focus ${
+        <div className={`flex items-end gap-2 bg-white/5 border rounded-2xl px-2 sm:px-3 py-2 transition-all duration-300 input-focus chat-input-row ${
           disabled ? 'opacity-60 border-white/8' : 'border-white/12'
         }`}>
           <textarea
@@ -115,6 +152,21 @@ export default function ChatInput({ onSend, disabled }) {
               : <Send size={15} />
             }
           </motion.button>
+
+          {/* Voice input */}
+          <button
+            type="button"
+            onClick={toggleRecording}
+            disabled={disabled || !recognitionRef.current}
+            className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
+              isRecording
+                ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                : 'bg-white/8 text-white/40 hover:text-white/70'
+            }`}
+            title="Voice input"
+          >
+            {isRecording ? <MicOff size={14} /> : <Mic size={14} />}
+          </button>
         </div>
       </form>
 

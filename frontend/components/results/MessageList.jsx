@@ -14,7 +14,7 @@ export default function MessageList({ messages, onFollowUp }) {
 
   return (
     <div className="flex-1 overflow-y-auto chat-area">
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 py-6 sm:py-8 space-y-6 pb-24 sm:pb-8">
         <AnimatePresence initial={false}>
           <motion.div
             variants={staggerContainer}

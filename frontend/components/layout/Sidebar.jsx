@@ -1,7 +1,7 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Trash2, Plus, Stethoscope } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useUIStore from '@/store/uiStore';
 import useChatStore from '@/store/chatStore';
 import { fetchConversations, deleteConversation, fetchConversation } from '@/lib/api';
@@ -9,6 +9,8 @@ import { fetchConversations, deleteConversation, fetchConversation } from '@/lib
 export default function Sidebar() {
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
   const clearChat = useChatStore((s) => s.clearChat);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const [isMobile, setIsMobile] = useState(false);
   const {
     conversations, setConversations, setActiveConversation,
     activeConversationId, setMessages, removeConversation,
@@ -16,6 +18,16 @@ export default function Sidebar() {
 
   useEffect(() => {
     fetchConversations().then(setConversations).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const update = () => {
+      setIsMobile(mq.matches);
+    };
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
   }, []);
 
   const handleSelect = async (id) => {
@@ -35,15 +47,25 @@ export default function Sidebar() {
   return (
     <AnimatePresence>
       {sidebarOpen && (
-        <motion.aside
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 256, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="border-r border-white/10 bg-sidebar overflow-hidden shrink-0 flex flex-col"
-        >
+        <>
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={toggleSidebar}
+              className="fixed inset-0 bg-black/30 backdrop-blur-[1px] z-30"
+            />
+          )}
+          <motion.aside
+            initial={{ width: 0, opacity: 0, x: isMobile ? -20 : 0 }}
+            animate={{ width: isMobile ? 260 : 240, opacity: 1, x: 0 }}
+            exit={{ width: 0, opacity: 0, x: isMobile ? -20 : 0 }}
+            transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={`border-r border-white/10 bg-sidebar overflow-hidden shrink-0 flex flex-col ${isMobile ? 'fixed left-0 top-0 h-full z-40' : ''}`}
+          >
           {/* New chat button */}
-          <div className="p-3 border-b border-white/10">
+          <div className="p-2 sm:p-3 border-b border-white/10">
             <button
               onClick={clearChat}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-sm font-medium transition-all duration-200 group"
@@ -132,7 +154,8 @@ export default function Sidebar() {
               </div>
             </div>
           </div>
-        </motion.aside>
+          </motion.aside>
+        </>
       )}
     </AnimatePresence>
   );

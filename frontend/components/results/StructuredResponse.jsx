@@ -46,11 +46,11 @@ const SECTION_META = {
 const ORDER = ['conditionOverview', 'researchInsights', 'clinicalTrials', 'recommendations', 'sources'];
 
 const md = {
-  p: ({ children }) => <p className="text-sm text-white/70 leading-relaxed mb-2 last:mb-0">{children}</p>,
+  p: ({ children }) => <p className="text-sm text-white/70 leading-relaxed mb-2 last:mb-0 break-words whitespace-pre-wrap">{children}</p>,
   ul: ({ children }) => <ul className="my-2 space-y-1.5 list-none pl-0">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 space-y-1.5 pl-4 list-decimal text-white/70 text-sm">{children}</ol>,
   li: ({ children }) => (
-    <li className="flex items-start gap-2 text-sm text-white/70 leading-relaxed">
+    <li className="flex items-start gap-2 text-sm text-white/70 leading-relaxed break-words whitespace-pre-wrap">
       <span className="mt-2 shrink-0 w-1 h-1 rounded-full bg-emerald-400/60 inline-block" />
       <span>{children}</span>
     </li>
@@ -59,7 +59,7 @@ const md = {
   em: ({ children }) => <em className="italic text-white/55">{children}</em>,
   a: ({ href, children }) => (
     <a href={href} target="_blank" rel="noopener noreferrer"
-      className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">
+      className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 break-all">
       {children}
     </a>
   ),
@@ -98,7 +98,7 @@ function Section({ sectionKey, content }) {
   return (
     <motion.div
       variants={fadeInUp}
-      className={`border-l-4 ${meta.accent} ${meta.bg} rounded-r-xl pl-3 pr-3 py-3`}
+      className={`border-l-4 ${meta.accent} ${meta.bg} rounded-r-xl pl-3 pr-3 py-3 sm:py-4 break-words`}
     >
       <div className="flex items-center gap-1.5 mb-2">
         <span className={meta.iconColor}>{meta.icon}</span>

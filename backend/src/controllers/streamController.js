@@ -10,6 +10,7 @@ import { generateFollowUps } from '../services/processing/followUpGenerator.js';
 import * as contextManager from '../services/contextManager.js';
 import { logger } from '../utils/logger.js';
 import { detectIntentType } from '../services/processing/intentDetector.js';
+import { detectDistress, buildCrisisResources, buildSupportiveMessage } from '../services/processing/distressDetector.js';
 
 /**
  * Extract the medical condition/disease from a natural language message.
@@ -103,6 +104,8 @@ export async function streamChat(req, res) {
       ? context.intentQuery
       : message.trim();
 
+    const distress = detectDistress(message.trim());
+
     logger.info(`Pipeline context → disease: "${context.disease}", query: "${effectiveQuery}", intent: "${context.intentType}"`);
 
     // ── Get or create conversation ──
@@ -110,11 +113,12 @@ export async function streamChat(req, res) {
       conversationId,
       context,
       message,
+      req.user.id,
     );
     const convId = conversation._id.toString();
 
-    await contextManager.saveMessage(convId, { role: 'user', content: message });
-    const history = await contextManager.getConversationHistory(convId);
+    await contextManager.saveMessage(convId, { role: 'user', content: message }, req.user.id);
+    const history = await contextManager.getConversationHistory(convId, req.user.id);
 
     // ── Stage 1: Query Expansion ──
     emit({ stage: 'query_expansion', status: 'running', message: '⚡ Expanding query for broader coverage...' });
@@ -189,6 +193,10 @@ export async function streamChat(req, res) {
       confidence,
       analytics,
       followUps,
+      ...(distress.detected ? {
+        distressSupportMessage: buildSupportiveMessage({ severity: distress.severity, disease: context.disease }),
+        crisisResources: buildCrisisResources(context.location),
+      } : {}),
       transparency: {
         queryExpansions: expandedQueries,
         retrievalStats: results.stats,
@@ -200,7 +208,7 @@ export async function streamChat(req, res) {
       },
     };
 
-    await contextManager.saveMessage(convId, assistantMsg);
+    await contextManager.saveMessage(convId, assistantMsg, req.user.id);
 
     emit({
       stage: 'complete',

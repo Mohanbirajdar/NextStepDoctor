@@ -77,6 +77,7 @@ const messageSchema = new Schema({
 });
 
 const conversationSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   title: String,
   context: {
     disease: String,
