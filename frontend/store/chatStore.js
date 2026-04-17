@@ -10,6 +10,7 @@ const useChatStore = create(
       messages: [],
       context: {
         disease: '',
+        drug: '',
         location: '',
         patientName: '',
         patientAge: '',
@@ -43,6 +44,7 @@ const useChatStore = create(
         activeConversationId: null,
         context: {
           disease: '',
+          drug: '',
           location: '',
           patientName: '',
           patientAge: '',

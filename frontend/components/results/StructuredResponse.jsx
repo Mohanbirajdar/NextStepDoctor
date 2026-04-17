@@ -20,6 +20,13 @@ const SECTION_META = {
     bg: 'bg-amber-500/5',
     iconColor: 'text-amber-400',
   },
+  drugInsights: {
+    icon: <FlaskConical size={13} />,
+    label: 'Drug Insights (FDA)',
+    accent: 'border-l-purple-400',
+    bg: 'bg-purple-500/5',
+    iconColor: 'text-purple-400',
+  },
   clinicalTrials: {
     icon: <FlaskConical size={13} />,
     label: 'Clinical Trials',
@@ -43,7 +50,7 @@ const SECTION_META = {
   },
 };
 
-const ORDER = ['conditionOverview', 'researchInsights', 'clinicalTrials', 'recommendations', 'sources'];
+const ORDER = ['conditionOverview', 'researchInsights', 'drugInsights', 'clinicalTrials', 'recommendations', 'sources'];
 
 const md = {
   p: ({ children }) => <p className="text-sm text-white/70 leading-relaxed mb-2 last:mb-0 break-words whitespace-pre-wrap">{children}</p>,

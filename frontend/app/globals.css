@@ -106,7 +106,7 @@ html, body {
   height: 100%;
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -244,6 +244,42 @@ html, body {
   .assistant-bubble ul,
   .assistant-bubble ol {
     padding-left: 0.75rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .chat-area .space-y-6 {
+    gap: 0.9rem !important;
+  }
+  .chat-area .px-2 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .assistant-bubble,
+  .user-bubble {
+    padding: 10px !important;
+  }
+  .assistant-bubble .text-sm {
+    font-size: 0.78rem !important;
+  }
+  .assistant-bubble .text-xs,
+  .user-bubble .text-xs {
+    font-size: 0.68rem !important;
+  }
+  .chat-input-shell {
+    padding: 0.5rem !important;
+  }
+  .chat-input-row {
+    border-radius: 12px !important;
+    padding: 0.35rem 0.45rem !important;
+  }
+  .chat-input-row textarea {
+    font-size: 0.72rem !important;
+  }
+  .chat-input-row button {
+    width: 2rem !important;
+    height: 2rem !important;
+    padding: 0 !important;
   }
 }
 

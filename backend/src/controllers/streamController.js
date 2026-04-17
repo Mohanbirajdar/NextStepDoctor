@@ -39,6 +39,21 @@ function extractDiseaseFromMessage(message) {
   return null;
 }
 
+function extractDrugFromMessage(message) {
+  if (!message) return null;
+  const patterns = [
+    /(?:drug|medication|medicine|meds|taking|on)\s+([a-zA-Z0-9\-']{2,30})/i,
+    /([a-zA-Z0-9\-']{2,30})\s+(?:drug|medication|medicine)/i,
+  ];
+  for (const pattern of patterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  return null;
+}
+
 /**
  * Resolve the working context for this request:
  * 1. If context.disease is explicitly provided (structured form), use it.
@@ -61,6 +76,11 @@ function resolveContext(message, context) {
       // Use the full message as the disease context so retrieval is anchored to it
       resolved.disease = message;
     }
+  }
+
+  if (!resolved.drug || resolved.drug.trim() === '') {
+    const drug = extractDrugFromMessage(message) || extractDrugFromMessage(resolved.intentQuery || '');
+    if (drug) resolved.drug = drug;
   }
 
   return resolved;
@@ -171,7 +191,13 @@ export async function streamChat(req, res) {
     // ── Stage 4: LLM Reasoning ──
     emit({ stage: 'llm_reasoning', status: 'running', message: '🧠 Generating structured insights...' });
     const t4 = Date.now();
-    const userPrompt = buildLLMUserPrompt({ context, message: effectiveQuery, ranked, conversationHistory: history });
+    const userPrompt = buildLLMUserPrompt({
+      context,
+      message: effectiveQuery,
+      ranked,
+      conversationHistory: history,
+      fdaDrugData: results.fdaDrugData,
+    });
     const llmResponse = await generateResponse(MAIN_RESEARCH_PROMPT, userPrompt, { maxTokens: 2048 });
     const structured = parseStructured(llmResponse);
     emit({ stage: 'llm_reasoning', status: 'complete', timeMs: Date.now() - t4 });
@@ -193,6 +219,7 @@ export async function streamChat(req, res) {
       confidence,
       analytics,
       followUps,
+      fdaDrugData: results.fdaDrugData || [],
       ...(distress.detected ? {
         distressSupportMessage: buildSupportiveMessage({ severity: distress.severity, disease: context.disease }),
         crisisResources: buildCrisisResources(context.location),

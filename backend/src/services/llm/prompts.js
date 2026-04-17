@@ -24,6 +24,7 @@ CRITICAL RULES:
 4. Cite paper titles inline using (parentheses) when referencing specific findings.
 5. Always include the disclaimer "This is not medical advice" in recommendations.
 6. Do NOT mention or infer the user's name. Write in direct, second-person language.
+7. If FDA drug data is provided, summarize only that data in the Drug Insights section.
 
 ALWAYS use this EXACT structure with these EXACT headings (do not add extra headings):
 
@@ -32,6 +33,9 @@ ALWAYS use this EXACT structure with these EXACT headings (do not add extra head
 
 ## Key Research Insights
 [4-6 bullet points synthesizing ONLY the provided publications. Each bullet must cite the paper title in (parentheses). Focus on the specific query topic.]
+
+## Drug Insights (FDA)
+[If FDA drug data is provided, summarize how the mentioned drug relates to the condition, key indications, contraindications, warnings, and interactions. If no FDA data provided, say "No FDA label data was found for the mentioned drug." Use direct second-person language.]
 
 ## Clinical Trials
 [Summarize ONLY the clinical trials listed below. Include: trial name, status (RECRUITING/COMPLETED/etc.), phase, locations, and eligibility highlights. If no trials provided, say "No active trials found in the search."]

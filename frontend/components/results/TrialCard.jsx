@@ -25,12 +25,14 @@ const STATUS_LABEL = {
 
 export default function TrialCard({ trial }) {
   if (!trial) return null;
-  const { title, status = 'Unknown', phase, locations = [], contacts = [], url, eligibility, score } = trial;
+  const { title, status = 'Unknown', phase, locations = [], contacts = [], url, eligibility, eligibilityAssessment, score } = trial;
+  const assessment = eligibilityAssessment?.status;
+  const reasons = eligibilityAssessment?.reasons || [];
 
   return (
     <motion.div
       variants={cardReveal}
-      className="bg-white/4 border border-white/8 rounded-xl p-4 hover:bg-white/6 hover:border-white/14 transition-all duration-200"
+      className="bg-white/4 border border-white/8 rounded-xl p-3 sm:p-4 hover:bg-white/6 hover:border-white/14 transition-all duration-200"
     >
       <div className="flex items-start gap-2 mb-2">
         <FlaskConical size={13} className="text-emerald-400/60 mt-0.5 shrink-0" />
@@ -42,17 +44,31 @@ export default function TrialCard({ trial }) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1.5 mb-3 ml-5">
+      <div className="flex flex-wrap gap-1.5 mb-3 ml-4 sm:ml-5">
         <Badge variant={statusVariant(status)}>{STATUS_LABEL[status] ?? status}</Badge>
         {phase && phase !== 'N/A' && <Badge variant="default">{phase}</Badge>}
       </div>
 
       {eligibility && (
-        <p className="text-xs text-white/45 ml-5 mb-2 leading-relaxed">{truncate(eligibility, 120)}</p>
+        <div className="ml-4 sm:ml-5 mb-2">
+          <p className="text-[11px] text-white/40 uppercase tracking-wider mb-1">Eligibility criteria</p>
+          <p className="text-xs text-white/45 leading-relaxed">{truncate(eligibility, 200)}</p>
+        </div>
+      )}
+
+      {assessment && (
+        <div className="ml-4 sm:ml-5 mb-2">
+          <p className="text-[11px] text-white/40 uppercase tracking-wider mb-1">Eligibility assessment</p>
+          <p className="text-xs text-white/60">
+            {assessment}
+            {reasons.length > 0 ? ` — ${reasons.join('; ')}` : ''}
+          </p>
+          <p className="text-[11px] text-white/35 mt-1">Heuristic estimate based on provided profile.</p>
+        </div>
       )}
 
       {locations.length > 0 && (
-        <div className="flex items-start gap-1.5 ml-5 mb-1.5">
+        <div className="flex items-start gap-1.5 ml-4 sm:ml-5 mb-1.5">
           <MapPin size={11} className="text-white/25 mt-0.5 shrink-0" />
           <p className="text-xs text-white/40">
             {locations.slice(0, 3).join(' · ')}{locations.length > 3 ? ` +${locations.length - 3} more` : ''}
@@ -61,14 +77,14 @@ export default function TrialCard({ trial }) {
       )}
 
       {contacts.length > 0 && contacts[0] && (
-        <div className="flex items-start gap-1.5 ml-5 mb-1.5">
+        <div className="flex items-start gap-1.5 ml-4 sm:ml-5 mb-1.5">
           <Users size={11} className="text-white/25 mt-0.5 shrink-0" />
           <p className="text-xs text-white/40">{typeof contacts[0] === 'string' ? contacts[0] : contacts[0].name ?? ''}</p>
         </div>
       )}
 
       {url && (
-        <div className="mt-3 ml-5">
+        <div className="mt-3 ml-4 sm:ml-5">
           <a href={url} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-emerald-400/70 hover:text-emerald-300 font-medium transition-colors">
             <ExternalLink size={11} />View on ClinicalTrials.gov

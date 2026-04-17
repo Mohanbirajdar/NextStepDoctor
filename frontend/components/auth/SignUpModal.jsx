@@ -63,9 +63,9 @@ export default function SignUpModal({ open, onClose, onSwitch }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 px-4 sm:px-6">
+    <div className="fixed inset-0 z-50 flex items-center sm:items-start justify-center pt-10 sm:pt-20 px-3 sm:px-6">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative w-full max-w-md page-card rounded-2xl p-6 max-h-[85vh] overflow-y-auto">
+      <div className="relative w-[96vw] sm:w-full max-w-md page-card rounded-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute right-3 top-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60"

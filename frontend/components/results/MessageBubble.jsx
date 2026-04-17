@@ -83,7 +83,7 @@ function UserBubble({ message }) {
     <motion.div variants={fadeInUp} className="flex items-start gap-2 sm:gap-3 justify-end w-full">
       <div className="max-w-[98%] sm:max-w-lg">
         <div className="user-bubble rounded-2xl rounded-tr-sm px-3 sm:px-4 py-2.5 sm:py-3">
-          <p className="text-sm sm:text-sm leading-relaxed text-white">{message.content}</p>
+          <p className="text-xs sm:text-sm leading-relaxed text-white break-words whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
       <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center shrink-0">

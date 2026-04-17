@@ -1,4 +1,5 @@
 import { RANKING_WEIGHTS, MAX_PUBLICATIONS, MAX_TRIALS } from '../../config/constants.js';
+import { assessTrialEligibility } from './trialEligibility.js';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -110,6 +111,7 @@ export function scoreTrial(trial, queryTerms, context = {}) {
   return {
     ...trial,
     score: Math.round((relevance * 0.75 + statusBonus + ctxBoost) * 100) / 100,
+    eligibilityAssessment: assessTrialEligibility(trial, context),
   };
 }
 

@@ -11,32 +11,96 @@ async function exportToPDF(elementId) {
   const element = document.getElementById(`msg-${elementId}`);
   if (!element) throw new Error('Content element not found');
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#ffffff',
-    logging: false,
-  });
+  // Ensure fonts and layout are fully ready
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+  await new Promise((r) => requestAnimationFrame(() => r()));
 
-  const imgData = canvas.toDataURL('image/png');
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
   const margin = 10;
   const contentW = pageW - margin * 2;
 
-  // Header
-  pdf.setFillColor(16, 185, 129); // emerald-500
-  pdf.rect(0, 0, pageW, 18, 'F');
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('NextStepDoctor AI — Research Report', margin, 12);
+  const renderHeader = () => {
+    pdf.setFillColor(16, 185, 129);
+    pdf.rect(0, 0, pageW, 18, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('NextStepDoctor AI — Research Report', margin, 12);
 
-  pdf.setTextColor(180, 220, 200);
-  pdf.setFontSize(8);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(`Generated: ${new Date().toLocaleString()}`, pageW - margin, 12, { align: 'right' });
+    pdf.setTextColor(180, 220, 200);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Generated: ${new Date().toLocaleString()}`, pageW - margin, 12, { align: 'right' });
+  };
+
+  const renderDisclaimer = () => {
+    const lastY = pageH - 10;
+    pdf.setTextColor(160, 160, 160);
+    pdf.setFontSize(7);
+    pdf.text(
+      'Disclaimer: This is AI-generated medical research analysis. Not medical advice. Always consult a qualified healthcare professional.',
+      pageW / 2,
+      lastY,
+      { align: 'center' },
+    );
+  };
+
+  const renderTextFallback = () => {
+    renderHeader();
+    const text = (element.innerText || '').replace(/\n{3,}/g, '\n\n');
+    pdf.setTextColor(30, 30, 30);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    const lines = pdf.splitTextToSize(text, contentW);
+    let y = 26;
+    lines.forEach((line) => {
+      if (y > pageH - 20) {
+        renderDisclaimer();
+        pdf.addPage();
+        renderHeader();
+        y = 26;
+      }
+      pdf.text(line, margin, y);
+      y += 5;
+    });
+    renderDisclaimer();
+  };
+
+  let canvas;
+  try {
+    canvas = await html2canvas(element, {
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#0b0f1a',
+      logging: false,
+      onclone: (doc) => {
+        const cloned = doc.getElementById(`msg-${elementId}`);
+        if (cloned) {
+          cloned.style.maxWidth = '100%';
+        }
+      },
+    });
+  } catch {
+    renderTextFallback();
+    pdf.save(`nextstep-report-${Date.now()}.pdf`);
+    return;
+  }
+
+  if (!canvas || !canvas.width || !canvas.height) {
+    renderTextFallback();
+    pdf.save(`nextstep-report-${Date.now()}.pdf`);
+    return;
+  }
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+  // Header
+  renderHeader();
 
   // Content image (paginated)
   const imgH = (canvas.height * contentW) / canvas.width;
@@ -69,15 +133,7 @@ async function exportToPDF(elementId) {
   }
 
   // Disclaimer on last page
-  const lastY = pageH - 10;
-  pdf.setTextColor(160, 160, 160);
-  pdf.setFontSize(7);
-  pdf.text(
-    'Disclaimer: This is AI-generated medical research analysis. Not medical advice. Always consult a qualified healthcare professional.',
-    pageW / 2,
-    lastY,
-    { align: 'center' },
-  );
+  renderDisclaimer();
 
   pdf.save(`nextstep-report-${Date.now()}.pdf`);
 }

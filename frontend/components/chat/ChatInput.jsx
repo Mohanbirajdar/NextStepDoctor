@@ -84,6 +84,7 @@ export default function ChatInput({ onSend, disabled }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
               {[
                 { key: 'disease', placeholder: 'Disease / Condition', icon: <span className="text-xs">🫁</span> },
+                { key: 'drug', placeholder: 'Drug name (optional)', icon: <span className="text-xs">💊</span> },
                 { key: 'intentQuery', placeholder: 'Specific intent (e.g. drug, treatment)', icon: <span className="text-xs">🎯</span> },
                 { key: 'location', placeholder: 'Location (e.g. Mumbai)', icon: <MapPin size={12} className="text-white/30" /> },
                 { key: 'patientName', placeholder: 'Patient name', icon: <User size={12} className="text-white/30" /> },
@@ -107,7 +108,7 @@ export default function ChatInput({ onSend, disabled }) {
 
       {/* Main input row */}
       <form onSubmit={handleSubmit}>
-        <div className={`flex items-end gap-2 bg-white/5 border rounded-2xl px-2 sm:px-3 py-2 transition-all duration-300 input-focus chat-input-row ${
+        <div className={`flex flex-wrap sm:flex-nowrap items-end gap-2 bg-white/5 border rounded-2xl px-2 sm:px-3 py-2 transition-all duration-300 input-focus chat-input-row ${
           disabled ? 'opacity-60 border-white/8' : 'border-white/12'
         }`}>
           <textarea
@@ -118,7 +119,7 @@ export default function ChatInput({ onSend, disabled }) {
             placeholder={disabled ? 'Researching…' : 'Ask about a condition, treatment, clinical trial, or researcher…'}
             rows={1}
             disabled={disabled}
-            className="flex-1 resize-none bg-transparent text-sm text-white placeholder-white/25 focus:outline-none leading-relaxed py-1 max-h-[140px]"
+            className="flex-1 min-w-0 resize-none bg-transparent text-xs sm:text-sm text-white placeholder-white/25 focus:outline-none leading-relaxed py-1 max-h-[140px]"
           />
 
           {/* Mode toggle */}
