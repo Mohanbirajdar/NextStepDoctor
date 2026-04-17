@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
-import { ExternalLink, MapPin, FlaskConical, Users } from 'lucide-react';
+import { ExternalLink, MapPin, FlaskConical, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 import { cardReveal } from '@/lib/animations';
 import Badge from '@/components/common/Badge';
 import { truncate } from '@/lib/utils';
@@ -25,7 +26,19 @@ const STATUS_LABEL = {
 
 export default function TrialCard({ trial }) {
   if (!trial) return null;
-  const { title, status = 'Unknown', phase, locations = [], contacts = [], url, eligibility, eligibilityAssessment, score } = trial;
+  const [showFull, setShowFull] = useState(false);
+  const {
+    title,
+    status = 'Unknown',
+    phase,
+    locations = [],
+    contacts = [],
+    url,
+    eligibility,
+    eligibilityFull,
+    eligibilityAssessment,
+    score,
+  } = trial;
   const assessment = eligibilityAssessment?.status;
   const reasons = eligibilityAssessment?.reasons || [];
 
@@ -52,7 +65,17 @@ export default function TrialCard({ trial }) {
       {eligibility && (
         <div className="ml-4 sm:ml-5 mb-2">
           <p className="text-[11px] text-white/40 uppercase tracking-wider mb-1">Eligibility criteria</p>
-          <p className="text-xs text-white/45 leading-relaxed">{truncate(eligibility, 200)}</p>
+          <p className="text-xs text-white/45 leading-relaxed">
+            {showFull && eligibilityFull ? eligibilityFull : truncate(eligibility, 200)}
+          </p>
+          {eligibilityFull && eligibilityFull.length > 200 && (
+            <button
+              onClick={() => setShowFull((v) => !v)}
+              className="mt-1 text-xs text-emerald-300/70 hover:text-emerald-300 flex items-center gap-1"
+            >
+              {showFull ? <><ChevronUp size={11} />Less</> : <><ChevronDown size={11} />More</>}
+            </button>
+          )}
         </div>
       )}
 
@@ -76,10 +99,15 @@ export default function TrialCard({ trial }) {
         </div>
       )}
 
-      {contacts.length > 0 && contacts[0] && (
-        <div className="flex items-start gap-1.5 ml-4 sm:ml-5 mb-1.5">
-          <Users size={11} className="text-white/25 mt-0.5 shrink-0" />
-          <p className="text-xs text-white/40">{typeof contacts[0] === 'string' ? contacts[0] : contacts[0].name ?? ''}</p>
+      {contacts.length > 0 && (
+        <div className="ml-4 sm:ml-5 mb-1.5">
+          <div className="flex items-start gap-1.5">
+            <Users size={11} className="text-white/25 mt-0.5 shrink-0" />
+            <p className="text-xs text-white/40">{contacts[0]}</p>
+          </div>
+          {contacts[1] && (
+            <p className="text-xs text-white/40 ml-5">{contacts[1]}</p>
+          )}
         </div>
       )}
 

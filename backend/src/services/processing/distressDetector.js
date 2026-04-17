@@ -1,13 +1,15 @@
 const HIGH_RISK_PATTERNS = [
-  /\b(suicide|suicidal|kill myself|end my life|take my life)\b/i,
+  /\b(suicide|suicidal|kill myself|end my life|take my life|ending it)\b/i,
   /\b(self[-\s]?harm|hurt myself|cut myself|overdose)\b/i,
-  /\b(can't go on|no reason to live|want to die)\b/i,
+  /\b(can't go on|no reason to live|want to die|don't want to live)\b/i,
+  /\b(what'?s the point|what is the point|nothing to live for)\b/i,
 ];
 
 const MEDIUM_RISK_PATTERNS = [
-  /\b(hopeless|worthless|helpless)\b/i,
-  /\b(severely depressed|deeply depressed|panic attack)\b/i,
-  /\b(i'm scared|i am scared|can't cope|overwhelmed)\b/i,
+  /\b(hopeless|worthless|helpless|empty|numb)\b/i,
+  /\b(severely depressed|deeply depressed|panic attack|anxious|anxiety)\b/i,
+  /\b(i'm scared|i am scared|can't cope|overwhelmed|breaking down)\b/i,
+  /\b(nothing is working|i can't deal|i can’t deal|can't handle|i’m done)\b/i,
 ];
 
 export function detectDistress(message = '') {
@@ -58,10 +60,30 @@ export function buildCrisisResources(location = '') {
   };
 }
 
-export function buildSupportiveMessage({ severity = 'medium', disease = '' }) {
-  const conditionPhrase = disease ? ` Living with ${disease} can be incredibly tough.` : ' What you’re going through sounds really tough.';
+export function buildSupportiveMessage({ severity = 'medium', disease = '', context = {} }) {
+  const { patientAge, sex, conditions, currentMeds, allergies } = context || {};
+  const profileBits = [
+    patientAge ? `age ${patientAge}` : null,
+    sex ? `sex ${sex}` : null,
+  ].filter(Boolean).join(', ');
+
+  const extraContext = [
+    conditions ? `you’re also managing ${conditions}` : null,
+    currentMeds ? `you’re taking ${currentMeds}` : null,
+    allergies ? `you have allergies to ${allergies}` : null,
+  ].filter(Boolean).join('; ');
+
+  const conditionPhrase = disease
+    ? ` Living with ${disease} can be incredibly tough, and it’s understandable to feel worn down.`
+    : ' What you’re going through sounds really tough, and it’s understandable to feel overwhelmed.';
+
+  const contextPhrase = profileBits || extraContext
+    ? ` I’ll keep your details in mind (${[profileBits, extraContext].filter(Boolean).join(' — ')}).`
+    : '';
+
   if (severity === 'high') {
-    return `I hear you, and I’m really glad you shared this. What you’re feeling is valid, and you don’t have to carry it alone.${conditionPhrase} If things feel overwhelming or unsafe, reaching out for support can make a real difference.`;
+    return `I’m really sorry you’re feeling this way. Thank you for sharing it — you matter, and you don’t have to carry this alone.${conditionPhrase}${contextPhrase} If you’re feeling unsafe or thinking about harming yourself, reaching out for immediate support can make a real difference. I’m here to help you through this and also to look at options for your care.`;
   }
-  return `I hear you. What you’re feeling is valid, and it’s understandable to feel overwhelmed.${conditionPhrase} You’re not alone, and support is available if you want it.`;
+
+  return `I hear you. What you’re feeling is valid, and it makes sense that this feels exhausting.${conditionPhrase}${contextPhrase} You’re not alone, and support is available if you want it. I can also keep helping you explore options for your condition.`;
 }

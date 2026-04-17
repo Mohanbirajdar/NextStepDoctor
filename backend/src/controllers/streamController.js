@@ -221,7 +221,7 @@ export async function streamChat(req, res) {
       followUps,
       fdaDrugData: results.fdaDrugData || [],
       ...(distress.detected ? {
-        distressSupportMessage: buildSupportiveMessage({ severity: distress.severity, disease: context.disease }),
+        distressSupportMessage: buildSupportiveMessage({ severity: distress.severity, disease: context.disease, context }),
         crisisResources: buildCrisisResources(context.location),
       } : {}),
       transparency: {

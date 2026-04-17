@@ -190,19 +190,19 @@ function AssistantBubble({ message, onFollowUp, msgId }) {
       </div>
       <div id={`msg-${msgId}`} className="flex-1 w-full max-w-[98%] sm:max-w-3xl">
         <div className="assistant-bubble rounded-2xl rounded-tl-sm px-4 sm:px-5 py-4 sm:py-5">
-          <StructuredResponse
-            structured={structured}
-            confidence={confidence}
-            fallbackContent={content}
-          />
-
           {distressSupportMessage ? (
-            <div className="mt-4 border border-amber-500/25 bg-amber-500/10 rounded-xl p-3 sm:p-4">
+            <div className="mb-4 border border-amber-500/25 bg-amber-500/10 rounded-xl p-3 sm:p-4">
               <p className="text-sm text-amber-100/90">{distressSupportMessage}</p>
             </div>
           ) : null}
 
           <CrisisResources resources={crisisResources} />
+
+          <StructuredResponse
+            structured={structured}
+            confidence={confidence}
+            fallbackContent={content}
+          />
 
           {publications.length > 0 && (
             <SectionToggle label="Top Publications" count={`${publications.length} papers`}>

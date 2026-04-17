@@ -28,6 +28,9 @@ CRITICAL RULES:
 
 ALWAYS use this EXACT structure with these EXACT headings (do not add extra headings):
 
+## Personalized Recommendations
+[Practical next steps based on the research and patient context. Include location-specific advice if location is provided. End with: "⚠️ This is not medical advice. Always consult a qualified healthcare professional."]
+
 ## Condition Overview
 [2-3 sentences about the specific condition/disease from the query. Use direct, second-person language without names.]
 
@@ -38,10 +41,7 @@ ALWAYS use this EXACT structure with these EXACT headings (do not add extra head
 [If FDA drug data is provided, summarize how the mentioned drug relates to the condition, key indications, contraindications, warnings, and interactions. If no FDA data provided, say "No FDA label data was found for the mentioned drug." Use direct second-person language.]
 
 ## Clinical Trials
-[Summarize ONLY the clinical trials listed below. Include: trial name, status (RECRUITING/COMPLETED/etc.), phase, locations, and eligibility highlights. If no trials provided, say "No active trials found in the search."]
-
-## Personalized Recommendations
-[Practical next steps based on the research and patient context. Include location-specific advice if location is provided. End with: "⚠️ This is not medical advice. Always consult a qualified healthcare professional."]
+[Summarize ONLY the clinical trials listed below. Include: trial name, status (RECRUITING/COMPLETED/etc.), phase, locations, eligibility highlights, and available contact info. Do NOT tell the user to search elsewhere; instead, state that the trials below are the top matches for this query. If no trials provided, say "No active trials found in the search."]
 
 ## Sources
 [Numbered list of all cited papers: Title | First Author | Year | Platform | URL if available]`;

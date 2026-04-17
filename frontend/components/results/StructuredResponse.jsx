@@ -50,7 +50,7 @@ const SECTION_META = {
   },
 };
 
-const ORDER = ['conditionOverview', 'researchInsights', 'drugInsights', 'clinicalTrials', 'recommendations', 'sources'];
+const ORDER = ['recommendations', 'conditionOverview', 'researchInsights', 'drugInsights', 'clinicalTrials', 'sources'];
 
 const md = {
   p: ({ children }) => <p className="text-sm text-white/70 leading-relaxed mb-2 last:mb-0 break-words whitespace-pre-wrap">{children}</p>,
